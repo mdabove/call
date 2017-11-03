@@ -1,7 +1,11 @@
 package almundo.model;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class CallCenterEmployee {
 
+	private final static Logger LOGGER = Logger.getLogger(CallCenterEmployee.class.getName());
 	private String name;
 	private EmployeeType employeeType;
 	
@@ -27,9 +31,10 @@ public class CallCenterEmployee {
 	}
 
 	public void takeCall(Call call) {
+
 		try {
 			Thread.sleep(call.getCallDuration());
-			System.out.println("Employee: " +this.getName()+" finished call OK with call number: "+ call.getNumber());
+			LOGGER.log(Level.INFO, "Employee: "+ this.getName() + " finished call OK with call number: " + call.getNumber());
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

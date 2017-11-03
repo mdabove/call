@@ -15,24 +15,23 @@ import almundo.model.Operator;
 import almundo.model.Supervisor;
 
 /**
- * Hello world!
+ * @author mdabove
  *
  */
-public class App 
-{
+public class App {
 	
 	private final static Logger LOGGER = Logger.getLogger(App.class.getName());
 	private static final int MIN_CALL_DURATION = 5000;
 	private static final int MAX_CALL_DURATION  = 10000;
-	private static final int MAX_CALL = 5;
+	private static final int MAX_CALLCENTER = 5;
 	
-    public static void main( String[] args ) throws InterruptedException
-    {
+    public static void main( String[] args ) throws InterruptedException {
     	LOGGER.log(Level.INFO, "Starting");
-    	//creo una BlockingPriorityQueue (thread safe) con un comparator por priority
+    	// PriorityBlockingQueue ensures a priority queue by passing a comparator or making the object implements comparable)
+    	// also, it will be wait till the queue is non-empty to poll an object
     	PriorityBlockingQueue<CallCenterEmployee> employeesPriorityQueue = createEmployeeQueue();
     	List<Call> callList = createCallList();
-    	Dispatcher dispatcher = new Dispatcher(MAX_CALL, employeesPriorityQueue);
+    	Dispatcher dispatcher = new Dispatcher(MAX_CALLCENTER, employeesPriorityQueue);
 
     	for (Call call : callList) {
     		dispatcher.dispatchCall(call);
@@ -59,8 +58,10 @@ public class App
 	        	}
 			}
 		);
+		employeesPriorityQueue.add(new Operator("Jake LaMotta OPERATOR"));
 		employeesPriorityQueue.add(new Operator("Ringo Starr OPERATOR"));
 		employeesPriorityQueue.add(new Operator("Mick Jagger OPERATOR"));
+		employeesPriorityQueue.add(new Operator("Indio Solari OPERATOR"));
 		employeesPriorityQueue.add(new Operator("Axl Rose OPERATOR"));
 		employeesPriorityQueue.add(new Supervisor("Dave Gahan SUPERVISOR"));
 		employeesPriorityQueue.add(new Director("Jimi Hendrix DIRECTOR"));
