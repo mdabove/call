@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
+import almundo.comparator.ComparatorComponent;
 import almundo.dispatcher.Dispatcher;
 import almundo.model.Call;
 import almundo.model.CallCenterEmployee;
@@ -28,12 +29,7 @@ public class DispatcherAlmundoTest {
     private final static Logger LOGGER = Logger.getLogger(DispatcherAlmundoTest.class.getName());
     private static final int MAX_CALLCENTER = 10;
     private Dispatcher dispatcher;
-    private static Comparator<CallCenterEmployee> employeesComparator = new Comparator<CallCenterEmployee>() {
-        @Override
-        public int compare(CallCenterEmployee c1, CallCenterEmployee c2) {
-            return (int) (c1.getEmployeeType().getValue() - c2.getEmployeeType().getValue());
-        }
-    };
+    private ComparatorComponent employeesComparator = new ComparatorComponent();
 
     /**
      * 
@@ -50,7 +46,7 @@ public class DispatcherAlmundoTest {
 
         dispatcher.shutDown();
 
-        assertEquals(10, getCallsAnswered(employeesPriorityQueue));
+        assertEquals("There were calls unattended", 10, getCallsAnswered(employeesPriorityQueue));
     }
 
     /**
@@ -68,7 +64,7 @@ public class DispatcherAlmundoTest {
 
         dispatcher.shutDown();
 
-        assertEquals(20, getCallsAnswered(employeesPriorityQueue));
+        assertEquals("There were calls unattended", 20, getCallsAnswered(employeesPriorityQueue));
     }
 
     /**
@@ -81,15 +77,41 @@ public class DispatcherAlmundoTest {
     @Test
     public void testPriority() throws InterruptedException {
         PriorityBlockingQueue<CallCenterEmployee> employeesPriorityQueue = new PriorityBlockingQueue<>(5,
-                employeesComparator);
+                employeesComparator.getEmployeesComparator());
         employeesPriorityQueue.add(new Supervisor("Luis Alberto Spinetta SUPERVISOR"));
         employeesPriorityQueue.add(new Director("Jimi Hendrix DIRECTOR"));
         employeesPriorityQueue.add(new Operator("Jake LaMotta OPERATOR"));
         employeesPriorityQueue.add(new Operator("Jerry Garcia OPERATOR"));
-        assertEquals(employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.OPERATOR.getValue());
-        assertEquals(employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.OPERATOR.getValue());
-        assertEquals(employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.SUPERVISOR.getValue());
-        assertEquals(employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.DIRECTOR.getValue());
+        assertEquals("Comparation failed, different priority",
+                employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.OPERATOR.getValue());
+        assertEquals("Comparation failed, different priority",
+                employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.OPERATOR.getValue());
+        assertEquals("Comparation failed, different priority",
+                employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.SUPERVISOR.getValue());
+        assertEquals("Comparation failed, different priority",
+                employeesPriorityQueue.take().getEmployeeType().getValue(), EmployeeType.DIRECTOR.getValue());
+    }
+
+    @Test
+    public void testEmployeesComparator() {
+        assertEquals("Comparation failed, different priority value", 0, employeesComparator.getEmployeesComparator()
+                .compare(new Operator("OPERATOR"), new Operator("OPERATOR")));
+        assertEquals("Comparation failed, different priority value", 0, employeesComparator.getEmployeesComparator()
+                .compare(new Director("DIRECTOR"), new Director("DIRECTOR")));
+        assertEquals("Comparation failed, different priority value", 0, employeesComparator.getEmployeesComparator()
+                .compare(new Supervisor("SUPERVISOR"), new Supervisor("SUPERVISOR")));
+        assertEquals("Comparation failed, different priority value", -1, employeesComparator.getEmployeesComparator()
+                .compare(new Operator("OPERATOR"), new Supervisor("SUPERVISOR")));
+        assertEquals("Comparation failed, different priority value", -2, employeesComparator.getEmployeesComparator()
+                .compare(new Operator("OPERATOR"), new Director("DIRECTOR")));
+        assertEquals("Comparation failed, different priority value", -1, employeesComparator.getEmployeesComparator()
+                .compare(new Supervisor("SUPERVISOR"), new Director("DIRECTOR")));
+        assertEquals("Comparation failed, different priority value", 1, employeesComparator.getEmployeesComparator()
+                .compare(new Supervisor("SUPERVISOR"), new Operator("OPERATOR")));
+        assertEquals("Comparation failed, different priority value", 1, employeesComparator.getEmployeesComparator()
+                .compare(new Director("DIRECTOR"), new Supervisor("SUPERVISOR")));
+        assertEquals("Comparation failed, different priority value", 2, employeesComparator.getEmployeesComparator()
+                .compare(new Director("DIRECTOR"), new Operator("OPERATOR")));
     }
 
     private List<Call> createCallList(int callsQuantity) {
@@ -97,12 +119,11 @@ public class DispatcherAlmundoTest {
         IntStream.range(0, callsQuantity).forEach(number -> callList.add(new Call(number)));
         return callList;
     }
-
+    
     private int getCallsAnswered(PriorityBlockingQueue<CallCenterEmployee> employeesPriorityQueue) {
         AtomicInteger atomicInteger = new AtomicInteger(0);
         employeesPriorityQueue.forEach(employee -> atomicInteger.addAndGet(employee.getCallsAnswered()));
         return atomicInteger.get();
-
     }
 
     private void doCall(List<Call> callList) {
@@ -117,7 +138,7 @@ public class DispatcherAlmundoTest {
 
     private PriorityBlockingQueue<CallCenterEmployee> createEmployeeQueue() {
         PriorityBlockingQueue<CallCenterEmployee> employeesPriorityQueue = new PriorityBlockingQueue<>(5,
-                employeesComparator);
+                employeesComparator.getEmployeesComparator());
         employeesPriorityQueue.add(new Supervisor("Dave Gahan SUPERVISOR"));
         employeesPriorityQueue.add(new Director("Jimi Hendrix DIRECTOR"));
         employeesPriorityQueue.add(new Operator("Jake LaMotta OPERATOR"));

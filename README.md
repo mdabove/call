@@ -22,5 +22,5 @@ hay ningún empleado libre:** gracias al método take() cuando no hay ningun emp
 entran más de 10 llamadas concurrentes:** si hay más llamadas que empleados el problema está resuelto gracias al uso de la PriorityBlockingQueue, similar a la respuesta de arriba, take() bloquea el flujo hasta que la queue sea non-empty.
 Por eso, en ambos casos, tanto si no hay un empleado libre o hay 10 llamadas concurrentes, siempre que haya una empleado disponible, se atiende la llamada, sino quedará la llamada a la espera de que algun empleado vuelva a estar disponible.
 
-   [source1]: <http://kickjava.com/src/java/util/PriorityQueue.java.htm#ixzz0yBp7>
+   [source1]: <https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/PriorityBlockingQueue.html>
 
